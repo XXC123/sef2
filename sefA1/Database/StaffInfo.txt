@@ -1,0 +1,4 @@
+JD02031983 Lifeonmars44 Jane Doe 02/03/1983 6666-6666 Jane.Doe@RMIT.edu.au coordinator
+LP04051993 Ashestoashes98 Lily Phillips 04/05/1993 7777-7777 Lily.Phillips@RMIT.edu.au casual
+SS06081975 Aladdinsane87 Samantha Dawkins 18/09/1990 8888-8888 Samantha.Dawkins@RMIT.edu.au admin
+JS01021984 Lovingthealien42 John Smith 01/02/1984 5555-5555 John.Smith@RMIT.edu.au casual
