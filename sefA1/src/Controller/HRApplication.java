@@ -1,31 +1,135 @@
 package Controller;
 
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
 import Models.*;
 
 public class HRApplication {
+	public static ArrayList<Job> jobs = new ArrayList<Job>();
+	private static Scanner scanner = new Scanner(System.in);
 
-	Scanner scanner=new Scanner(System.in);
-	Database database;
-	Profile profile;
-	Message message;
-	String staffType;
+	// Imports all users' login information from loginInfo.txt
+	public static HashMap<String, Staff> importLoginInfo() {
+		HashMap<String, Staff> staffMembers = new HashMap<String, Staff>();
+		File loginInfo = new File("Database/loginInfo.txt");
 
-	public HRApplication()
-	{
-		Database database=new Database(); //initial database
-		this.database=database;
+		if (loginInfo.exists()) {
+			try {
+				Scanner input = new Scanner(new FileReader(loginInfo));
+
+				while (input.hasNextLine()) {
+					StringTokenizer staffLoginInfo = new StringTokenizer(
+							input.nextLine(), ",");
+					String staffType = staffLoginInfo.nextToken();
+					String username = staffLoginInfo.nextToken();
+					String password = staffLoginInfo.nextToken();
+
+					// Creates user according to type
+					if (staffType.equals("AD")) {
+						staffMembers.put(username,
+								new Admin(username, password));
+					} else if (staffType.equals("AP")) {
+						staffMembers.put(username,
+								new Approval(username, password));
+					} else if (staffType.equals("CC")) {
+						staffMembers.put(username,
+								new CourseCoordinator(username, password));
+					} else if (staffType.equals("FS")) {
+						staffMembers.put(username,
+								new Staff(username, password));
+					} else {
+						staffMembers.put(username,
+								new CasualStaff(username, password));
+					}
+				}
+			} catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		} else {
+			System.out.println("Cannot find file.");
+		}
+
+		return staffMembers;
+	}
+
+	public static Staff login() {
+		HashMap<String, Staff> staffMembers = importLoginInfo();
+		Scanner scan = new Scanner(System.in);
+		String inputUsername;
+		String inputPassword;
+
+		while (true) {
+			// Gets user's input
+			System.out.println("Log in");
+			System.out.println("Username:");
+			inputUsername = scan.next();
+			System.out.println("Password:");
+			inputPassword = scan.next();
+
+			// Input validation
+			if (staffMembers.containsKey(inputUsername)) {
+				if (inputPassword.equals(
+						staffMembers.get(inputUsername).getPassword())) {
+					System.out.println("Welcome to the system.");
+					return staffMembers.get(inputUsername);
+				} else {
+					System.out.println(
+							"Incorrect password used for this account.");
+				}
+			} else {
+				System.out.println("No account detected");
+			}
+		}
+	}
+
+	// Imports user's profile
+	public static void importProfile(Staff user) {
+		String username = user.getUsername();
+		File profiles = new File("Database/profiles.txt");
+		if (profiles.exists()) {
+			try {
+				Scanner input = new Scanner(new FileReader(profiles));
+
+				while (input.hasNextLine()) {
+					StringTokenizer staffProfile = new StringTokenizer(
+							input.nextLine(), ",");
+					String fileUsername = staffProfile.nextToken();
+
+					// Finds the right username and imports their profile
+					if (fileUsername.equals(username)) {
+						String givenName = staffProfile.nextToken();
+						String familyName = staffProfile.nextToken();
+						String dob = staffProfile.nextToken();
+						String phone = staffProfile.nextToken();
+						String email = staffProfile.nextToken();
+
+						user.setProfile(givenName, familyName, dob, phone,
+								email);
+						return;
+					}
+				}
+			} catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+	}
+
+	public static void selectMenu(Staff user) {
+		if (user instanceof Admin)
+			adminUI(user);
+		else if (user instanceof CourseCoordinator)
+			coordinatorUI(user);
+		else if (user instanceof CasualStaff || user instanceof Staff)
+			casualUI(user);
+		else if (user instanceof Approval)
+			approvalUI(user);
 	}
 	
-	
-	public void run() {
-		// TODO Auto-generated method stub
-		staffType=login();
-		selectMenu(staffType);
+	public static void logout() {
+		System.exit(0);
 	}
 	
-	public void adminUI()
-	{
+	public static void adminUI(Staff user) {
 		System.out.println();
 		System.out.println("-----------Menu-----------");
 		System.out.println("1.Message other staff");
@@ -35,48 +139,50 @@ public class HRApplication {
 		System.out.println("5.Update profile");
 		System.out.println("6.Gather report data");
 		System.out.println("7.View all staff");
-		System.out.println("8.View course staff requests");
+		System.out.println("8.View course staff jobs");
 		System.out.println("9.Set rosters");
-		System.out.println("0.Allocate staff");
-		int selection= scanner.nextInt();
-		switch(selection)
-		{
-			case 1:
-				message();
-				break;
-			case 2:
-				viewAnnouncements();
-				break;
-			case 3:
-				checkPayrate();
-				break;
-			case 4:
-				seeRoster();
-				break;
-			case 5:
-				viewProfile();
-				break;
-			case 6:
-				gatherPayroll();
-				break;
-			case 7:
-				viewStaff();
-				break;
-			case 8:
-				viewCourseStaffRequest();
-				break;
-			case 9:
-				setRoster();
-				break;
-			case 0:
-				allocateStaff();
-				break;
+		System.out.println("10.Allocate staff");
+		System.out.println("11.Log out");
+		System.out.print("Please enter your selection: ");
+		int selection = scanner.nextInt();
+		switch (selection) {
+		case 1:
+			message();
+			break;
+		case 2:
+			viewAnnouncements();
+			break;
+		case 3:
+			checkPayrate();
+			break;
+		case 4:
+			seeRoster();
+			break;
+		case 5:
+			viewProfile(user);
+			break;
+		case 6:
+			gatherPayroll();
+			break;
+		case 7:
+			viewStaff();
+			break;
+		case 8:
+			viewCourseStaffRequest();
+			break;
+		case 9:
+			setRoster();
+			break;
+		case 10:
+			allocateStaff();
+			break;
+		case 11: 
+			logout();
+			break;
 		}
 	}
-	
-	
-	public void coordinatorUI()
-	{
+
+	public static void coordinatorUI(Staff user) {
 		System.out.println();
 		System.out.println("-----------Menu-----------");
 		System.out.println("1.Message other staff");
@@ -86,49 +192,50 @@ public class HRApplication {
 		System.out.println("5.Update profile");
 		System.out.println("6.See course budget");
 		System.out.println("7.Set payrate for event");
-		System.out.println("8.Class timetabling");
+		System.out.println("8.Create a new job");
 		System.out.println("9.Request staff for events");
-		System.out.println("0.Make course anouncement");
-		
-		int selection= scanner.nextInt();
-		switch(selection)
-		{
-			case 1:
-				message();
-				break;
-			case 2:
-				viewAnnouncements();
-				break;
-			case 3:
-				checkPayrate();
-				break;
-			case 4:
-				seeRoster();
-				break;
-			case 5:
-				viewProfile();
-				break;
-			case 6:
-				seeCourseBudget();
-				break;
-			case 7:
-				approveStaffPay();
-				break;
-			case 8:
-				Job j = createCourseEvent();
-				break;
-			case 9:
-				StaffForEvent();
-				break;
-			case 0:
-				Announcement();
-				break;
+		System.out.println("10.Make course anouncement");
+		System.out.println("11.Log out");
+		System.out.print("Please enter your selection: ");
+		int selection = scanner.nextInt();
+		switch (selection) {
+		case 1:
+			message();
+			break;
+		case 2:
+			viewAnnouncements();
+			break;
+		case 3:
+			checkPayrate();
+			break;
+		case 4:
+			seeRoster();
+			break;
+		case 5:
+			viewProfile(user);
+			break;
+		case 6:
+			seeCourseBudget();
+			break;
+		case 7:
+			approveStaffPay();
+			break;
+		case 8:
+			createCourseEvent();
+			break;
+		case 9:
+			StaffForEvent();
+			break;
+		case 10:
+			Announcement();
+			break;
+		case 11:
+			logout();
+			break;
 		}
 	}
-	
-	
-	public void casualUI()
-	{
+
+	public static void casualUI(Staff user) {
 		System.out.println();
 		System.out.println("-----------Menu-----------");
 		System.out.println("1.Message other staff");
@@ -138,47 +245,39 @@ public class HRApplication {
 		System.out.println("5.Update profile");
 		System.out.println("6.Update resume");
 		System.out.println("7.Apply for positions");
-		
-		int selection= scanner.nextInt();
-		switch(selection)
-		{
-			case 1:
-				message();
-				break;
-			case 2:
-				viewAnnouncements();
-				break;
-			case 3:
-				checkPayrate();
-				break;
-			case 4:
-				seeRoster();
-				break;
-			case 5:
-				viewProfile();
-				break;
-			case 6:
-				gatherPayroll();
-				break;
-			case 7:
-				viewStaff();
-				break;
-			case 8:
-				viewCourseStaffRequest();
-				break;
-			case 9:
-				setRoster();
-				break;
-			case 0:
-				allocateStaff();
-				break;
+		System.out.println("8.Log out");
+		System.out.print("Please enter your selection: ");
+		int selection = scanner.nextInt();
+		switch (selection) {
+		case 1:
+			message();
+			break;
+		case 2:
+			viewAnnouncements();
+			break;
+		case 3:
+			checkPayrate();
+			break;
+		case 4:
+			seeRoster();
+			break;
+		case 5:
+			viewProfile(user);
+			break;
+		case 6:
+			user.getProfile().updateResume();
+			break;
+		case 7:
+			applyPosition();
+			break;
+		case 8:
+			logout();
+			break;
 		}
-	
 
 	}
-	
-	public void timeManagerUI()
-	{
+
+	public static void approvalUI(Staff user) {
 		System.out.println();
 		System.out.println("-----------Menu-----------");
 		System.out.println("1.Message other staff");
@@ -188,243 +287,180 @@ public class HRApplication {
 		System.out.println("5.Update profile");
 		System.out.println("6.Gather weekly payroll data");
 		System.out.println("7.Approve staff weekly pay");
-
-		
-		int selection= scanner.nextInt();
-		switch(selection)
-		{
-			case 1:
-				message();
-				break;
-			case 2:
-				viewAnnouncements();
-				break;
-			case 3:
-				checkPayrate();
-				break;
-			case 4:
-				seeRoster();
-				break;
-			case 5:
-				viewProfile();
-				break;
-			case 6:
-				gatherPayroll();
-				break;
-			case 7:
-				viewStaff();
-				break;
-			case 8:
-				viewCourseStaffRequest();
-				break;
-			case 9:
-				setRoster();
-				break;
-			case 0:
-				allocateStaff();
-				break;
-		}
-	
-	}
-	
-	// login function
-	public String login()
-	{
-		String staffType=null;
-		boolean loginSuccess= false;
-		String inputUsername;
-		String inputPassword;
-		
-		
-		while( loginSuccess == false)
-		{
-			System.out.println("Log in");
-			System.out.println("Username:");
-			inputUsername = scanner.next();
-		
-			System.out.println("Password:");
-			inputPassword = scanner.next();
-			int staffAmount=database.getStaffDatabase().size();
-			
-			for(int scanStaffList=0; scanStaffList<staffAmount;scanStaffList++)
-			{
-				if (database.getStaffDatabase().get(scanStaffList).getUsername().equals(inputUsername))
-				{
-					if (inputPassword.equals(database.getStaffDatabase().get(scanStaffList).getPassword())) 
-					{
-						loginSuccess = true;
-						staffType=database.getStaffDatabase().get(scanStaffList).getStaffType();
-						profile =new Profile(database.getStaffDatabase().get(scanStaffList).getGivenName(),database.getStaffDatabase().get(scanStaffList).getFamilyName(),database.getStaffDatabase().get(scanStaffList).getDob(),database.getStaffDatabase().get(scanStaffList).getPhone(),database.getStaffDatabase().get(scanStaffList).getEmail());
-						System.out.println("Welcome to the system.");
-						break;
-					}
-				}	
-			}
-			if (loginSuccess== false)
-			System.out.println("Username or password is wrong!");
-			
-		}
-		return staffType;
-	}
-	
-	
-	public void message()
-	{
-	//to-do	
-	}
-	public void viewAnnouncements()
-	{
-	//to-do	
-	}
-	public void checkPayrate()
-	{
-	//to-do	
-	}
-	public void seeRoster()
-	{
-	//to-do	
-	}
-	public void applyPosition()
-	{
-	//to-do	
-	}
-	public void viewStaff()
-	{
-	//to-do	
-	}
-	public void viewCourseStaffRequest()
-	{
-	//to-do	
-	}
-	public void setRoster()
-	{
-	//to-do	
-	}
-	public void allocateStaff()
-	{
-	//to-do	
-	}
-	public void gatherPayroll()
-	{
-	//to-do
-		Report report=new Report();
-		report.generateReport();
-	}
-	public void approveStaffPay()
-	{
-	//to-do	
-	}
-	public void seeCourseBudget()
-	{
-	//to-do	
-	}
-	public void createCourseBudget()
-	{
-	//to-do	
-	}
-	public Job createCourseEvent(){
-        Scanner stdin = new Scanner(System.in);
-        String name, start, end, time;
-        int numOfStaff;
-        double payRate;
-
-        // Gets user's input
-        System.out.println("Create a new request");
-        System.out.print("Name of the request: ");
-        name = stdin.next();
-        System.out.print("Start date: ");
-        start = stdin.next();
-        System.out.print("End date: ");
-        end = stdin.next();
-        System.out.print("Time: ");
-        time = stdin.next();
-        System.out.print("Number of staff: ");
-        numOfStaff = stdin.nextInt();
-
-        //TO DO: show a list of payrates
-        System.out.print("Payrate: ");
-        payRate = stdin.nextDouble();
-
-        //Creates new request
-        Job r = new Job(name, start, end, time, numOfStaff, payRate);
-        //TO DO: add the request to a collection of requests
-
-        System.out.println("Request created successfully.");
-        return r;
-    }
-	public void StaffForEvent()
-	{
-	//to-do	
-	}public void Announcement()
-	{
-	//to-do	
-	}
-	public void viewProfile()
-	{
-
-	profile.viewProfile(); //
-	
-	System.out.println("-------Modify your profile:-------");
-	System.out.println("1.Modify whole profile");
-	System.out.println("2.Modify one featrue");
-	
-	int selection= scanner.nextInt();
-	switch(selection)
-	{
+		System.out.println("8.Log out");
+		System.out.print("Please enter your selection: ");
+		int selection = scanner.nextInt();
+		switch (selection) {
 		case 1:
-			profile.modifyProfile();
+			message();
 			break;
 		case 2:
-			
+			viewAnnouncements();
+			break;
+		case 3:
+			checkPayrate();
+			break;
+		case 4:
+			seeRoster();
+			break;
+		case 5:
+			viewProfile(user);
+			break;
+		case 6:
+			gatherPayroll();
+			break;
+		case 7:
+			approveStaffPay();
+			break;
+		case 8:
+			logout();
+			break;
+		}
+
+	}
+
+	public static void message() {
+		// to-do
+	}
+
+	public static void viewAnnouncements() {
+		// to-do
+	}
+
+	public static void checkPayrate() {
+		// to-do
+	}
+
+	public static void seeRoster() {
+		// to-do
+	}
+
+	public static void applyPosition() {
+		// to-do
+	}
+
+	public static void viewStaff() {
+		// to-do
+	}
+
+	public static void viewCourseStaffRequest() {
+		// to-do
+	}
+
+	public static void setRoster() {
+		// to-do
+	}
+
+	public static void allocateStaff() {
+		// to-do
+	}
+
+	public static void gatherPayroll() {
+		// to-do
+		Report report = new Report();
+		report.generateReport();
+	}
+
+	public static void approveStaffPay() {
+		// to-do
+	}
+
+	public static void seeCourseBudget() {
+		// to-do
+	}
+
+	public static void createCourseBudget() {
+		// to-do
+	}
+
+	public static void createCourseEvent() {
+		Scanner stdin = new Scanner(System.in);
+		String name, start, end, time;
+		int numOfStaff;
+		double payRate;
+
+		// Gets user's input
+		System.out.println("Create a new job");
+		System.out.print("Name of the job: ");
+		name = stdin.next();
+		System.out.print("Start date: ");
+		start = stdin.next();
+		System.out.print("End date: ");
+		end = stdin.next();
+		System.out.print("Time: ");
+		time = stdin.next();
+		System.out.print("Number of staff: ");
+		numOfStaff = stdin.nextInt();
+
+		// TO DO: show a list of payrates
+		System.out.print("Payrate: ");
+		payRate = stdin.nextDouble();
+
+		// Creates new job
+		Job j = new Job(name, start, end, time, numOfStaff, payRate);
+		jobs.add(j);
+
+		System.out.println("Request created successfully.");
+	}
+
+	public static void StaffForEvent() {
+		// to-do
+	}
+
+	public static void Announcement() {
+		// to-do
+	}
+
+	public static void viewProfile(Staff user) {
+
+		user.getProfile().viewProfile();
+
+		System.out.println("-------Modify your profile:-------");
+		System.out.println("1.Modify whole profile");
+		System.out.println("2.Modify one featrue");
+
+		int selection = scanner.nextInt();
+		switch (selection) {
+		case 1:
+			user.getProfile().modifyProfile();
+			break;
+		case 2:
+
 			System.out.println("1.Modify given name");
 			System.out.println("2.Modify faminly name");
 			System.out.println("3.Modify dob");
 			System.out.println("4.Modify phone");
 			System.out.println("5.Modify email");
-			
-			selection= scanner.nextInt();
-			switch(selection)
-			{
+
+			selection = scanner.nextInt();
+			switch (selection) {
 			case 1:
 				System.out.println("Input new given name");
-				profile.setGivenName(scanner.next());
+				user.getProfile().setGivenName(scanner.next());
 				break;
 			case 2:
 				System.out.println("Input new family name");
-				profile.setFamilyName(scanner.next());
+				user.getProfile().setFamilyName(scanner.next());
 				break;
 			case 3:
 				System.out.println("Input new dob");
-				profile.setDob(scanner.next());
+				user.getProfile().setDob(scanner.next());
 				break;
 			case 4:
 				System.out.println("Input new phone");
-				profile.setPhone(scanner.next());
+				user.getProfile().setPhone(scanner.next());
 				break;
 			case 5:
 				System.out.println("Input new email");
-				profile.setEmail(scanner.next());
+				user.getProfile().setEmail(scanner.next());
 				break;
 			}
 			break;
+		}
+		//TO DO: prints changes to the file
+		user.getProfile().viewProfile();
 	}
-	profile.viewProfile();
-	selectMenu(staffType);
-	}
-	
-	public void selectMenu(String staffType)
-	{
-	if(staffType.equals("admin"))
-		adminUI();
-	else if(staffType.equals("coordinator"))
-		coordinatorUI();
-	else if(staffType.equals("casual"))
-		casualUI();
-	else if (staffType.equals("time"))
-		timeManagerUI();
-	else 
-		System.out.println("Staff type is wrong: "+staffType);
-	}
-	
-}
 
+	
+
+}
