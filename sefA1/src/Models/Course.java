@@ -11,7 +11,7 @@ public class Course {
 	private int numOfStaff;
 	private double budget;
 
-	public void Course(String name, String courseCode, String strat, String end, int numOfStaff, double budget)
+	public Course(String name, String courseCode, String start, String end, int numOfStaff, double budget)
 	{
 		this.name=name;
 		this.courseCode=courseCode;

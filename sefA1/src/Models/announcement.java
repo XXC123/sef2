@@ -5,7 +5,7 @@ public class announcement {
 	
 	private String announcement;
 
-	public void announcement(String announcement)
+	public announcement(String announcement)
 	{
 		this.announcement=announcement;
 	}

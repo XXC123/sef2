@@ -7,7 +7,7 @@ public class Roster {
 	private int month;
 	private int year;
 
-	public void Roster(int day, int month, int year)
+	public Roster(int day, int month, int year)
 	{
 		this.day=day;
 		this.month=month;

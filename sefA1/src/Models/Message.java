@@ -1,15 +1,12 @@
 package Models;
 
 public class Message {
-
-	
-	
 	private String sender;
 	private String recipient;
 	private String subject;
 	private String message;
 
-	public void message(String sender, String recipient, String subject, String message)
+	public Message(String sender, String recipient, String subject, String message)
 	{
 		this.sender = sender;
 		this.recipient = recipient;
