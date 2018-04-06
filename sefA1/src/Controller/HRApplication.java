@@ -1,11 +1,7 @@
 package Controller;
 
 import java.util.Scanner;
-
-import Models.Database;
-import Models.Message;
-import Models.Profile;
-import Models.Report;
+import Models.*;
 
 public class HRApplication {
 
@@ -119,7 +115,7 @@ public class HRApplication {
 				approveStaffPay();
 				break;
 			case 8:
-				createCourseEvent();
+				Job j = createCourseEvent();
 				break;
 			case 9:
 				StaffForEvent();
@@ -326,10 +322,37 @@ public class HRApplication {
 	{
 	//to-do	
 	}
-	public void createCourseEvent()
-	{
-	//to-do	
-	}public void StaffForEvent()
+	public Job createCourseEvent(){
+        Scanner stdin = new Scanner(System.in);
+        String name, start, end, time;
+        int numOfStaff;
+        double payRate;
+
+        // Gets user's input
+        System.out.println("Create a new request");
+        System.out.print("Name of the request: ");
+        name = stdin.next();
+        System.out.print("Start date: ");
+        start = stdin.next();
+        System.out.print("End date: ");
+        end = stdin.next();
+        System.out.print("Time: ");
+        time = stdin.next();
+        System.out.print("Number of staff: ");
+        numOfStaff = stdin.nextInt();
+
+        //TO DO: show a list of payrates
+        System.out.print("Payrate: ");
+        payRate = stdin.nextDouble();
+
+        //Creates new request
+        Job r = new Job(name, start, end, time, numOfStaff, payRate);
+        //TO DO: add the request to a collection of requests
+
+        System.out.println("Request created successfully.");
+        return r;
+    }
+	public void StaffForEvent()
 	{
 	//to-do	
 	}public void Announcement()
