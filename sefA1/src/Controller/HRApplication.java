@@ -5,8 +5,9 @@ import java.io.*;
 import Models.*;
 
 public class HRApplication {
-	public static ArrayList<Job> jobs = new ArrayList<Job>();
+	private static ArrayList<Job> jobs = new ArrayList<Job>();
 	private static Scanner scanner = new Scanner(System.in);
+	private static HashMap<String, Staff> staffMembers = importLoginInfo();
 
 	// Imports all users' login information from loginInfo.txt
 	public static HashMap<String, Staff> importLoginInfo() {
@@ -20,6 +21,7 @@ public class HRApplication {
 				while (input.hasNextLine()) {
 					StringTokenizer staffLoginInfo = new StringTokenizer(
 							input.nextLine(), ",");
+					//Gets user's info
 					String staffType = staffLoginInfo.nextToken();
 					String username = staffLoginInfo.nextToken();
 					String password = staffLoginInfo.nextToken();
@@ -53,7 +55,6 @@ public class HRApplication {
 	}
 
 	public static Staff login() {
-		HashMap<String, Staff> staffMembers = importLoginInfo();
 		Scanner scan = new Scanner(System.in);
 		String inputUsername;
 		String inputPassword;
@@ -114,6 +115,7 @@ public class HRApplication {
 		}
 	}
 
+	//Navigates to menu according to type of user
 	public static void selectMenu(Staff user) {
 		if (user instanceof Admin)
 			adminUI(user);
@@ -124,25 +126,15 @@ public class HRApplication {
 		else if (user instanceof Approval)
 			approvalUI(user);
 	}
-	
+
 	public static void logout() {
 		System.exit(0);
 	}
-	
-	public static void adminUI(Staff user) {
-		System.out.println();
-		System.out.println("-----------Menu-----------");
-		System.out.println("1.Message other staff");
-		System.out.println("2.Check announcements/ notifications");
-		System.out.println("3.Check pay rates ");
-		System.out.println("4.See weekly roster");
-		System.out.println("5.Update profile");
-		System.out.println("6.Gather report data");
-		System.out.println("7.View all staff");
-		System.out.println("8.View course staff jobs");
-		System.out.println("9.Set rosters");
-		System.out.println("10.Allocate staff");
-		System.out.println("11.Log out");
+
+	private static void adminUI(Staff user) {
+		showStaffMenu();
+		showAdminMenu();
+
 		System.out.print("Please enter your selection: ");
 		int selection = scanner.nextInt();
 		switch (selection) {
@@ -176,26 +168,16 @@ public class HRApplication {
 		case 10:
 			allocateStaff();
 			break;
-		case 11: 
+		case 11:
 			logout();
 			break;
 		}
 	}
 
-	public static void coordinatorUI(Staff user) {
-		System.out.println();
-		System.out.println("-----------Menu-----------");
-		System.out.println("1.Message other staff");
-		System.out.println("2.Check announcements/ notifications");
-		System.out.println("3.Check pay rates");
-		System.out.println("4.See weekly roster");
-		System.out.println("5.Update profile");
-		System.out.println("6.See course budget");
-		System.out.println("7.Set payrate for event");
-		System.out.println("8.Create a new job");
-		System.out.println("9.Request staff for events");
-		System.out.println("10.Make course anouncement");
-		System.out.println("11.Log out");
+	private static void coordinatorUI(Staff user) {
+		showStaffMenu();
+		showCoordinatorMenu();
+
 		System.out.print("Please enter your selection: ");
 		int selection = scanner.nextInt();
 		switch (selection) {
@@ -235,17 +217,10 @@ public class HRApplication {
 		}
 	}
 
-	public static void casualUI(Staff user) {
-		System.out.println();
-		System.out.println("-----------Menu-----------");
-		System.out.println("1.Message other staff");
-		System.out.println("2.Check announcements/ notifications");
-		System.out.println("3.Check pay rates ");
-		System.out.println("4.See weekly roster");
-		System.out.println("5.Update profile");
-		System.out.println("6.Update resume");
-		System.out.println("7.Apply for positions");
-		System.out.println("8.Log out");
+	private static void casualUI(Staff user) {
+		showStaffMenu();
+		showCasualStaffMenu();
+
 		System.out.print("Please enter your selection: ");
 		int selection = scanner.nextInt();
 		switch (selection) {
@@ -277,17 +252,10 @@ public class HRApplication {
 
 	}
 
-	public static void approvalUI(Staff user) {
-		System.out.println();
-		System.out.println("-----------Menu-----------");
-		System.out.println("1.Message other staff");
-		System.out.println("2.Check announcements/ notifications");
-		System.out.println("3.Check pay rates");
-		System.out.println("4.See weekly roster");
-		System.out.println("5.Update profile");
-		System.out.println("6.Gather weekly payroll data");
-		System.out.println("7.Approve staff weekly pay");
-		System.out.println("8.Log out");
+	private static void approvalUI(Staff user) {
+		showStaffMenu();
+		showApprovalMenu();
+
 		System.out.print("Please enter your selection: ");
 		int selection = scanner.nextInt();
 		switch (selection) {
@@ -317,6 +285,46 @@ public class HRApplication {
 			break;
 		}
 
+	}
+
+	private static void showStaffMenu() {
+		System.out.println();
+		System.out.println("-----------Menu-----------");
+		System.out.println("1.Message other staff");
+		System.out.println("2.Check announcements/ notifications");
+		System.out.println("3.Check pay rates");
+		System.out.println("4.See weekly roster");
+		System.out.println("5.Update profile");
+	}
+
+	private static void showAdminMenu() {
+		System.out.println("6.Gather report data");
+		System.out.println("7.View all staff");
+		System.out.println("8.View course staff jobs");
+		System.out.println("9.Set rosters");
+		System.out.println("10.Allocate staff");
+		System.out.println("11.Log out");
+	}
+
+	private static void showCoordinatorMenu() {
+		System.out.println("6.See course budget");
+		System.out.println("7.Set payrate for event");
+		System.out.println("8.Create a new job");
+		System.out.println("9.Request staff for events");
+		System.out.println("10.Make course anouncement");
+		System.out.println("11.Log out");
+	}
+
+	private static void showCasualStaffMenu() {
+		System.out.println("6.Update resume");
+		System.out.println("7.Apply for positions");
+		System.out.println("8.Log out");
+	}
+
+	private static void showApprovalMenu() {
+		System.out.println("6.Gather weekly payroll data");
+		System.out.println("7.Approve staff weekly pay");
+		System.out.println("8.Log out");
 	}
 
 	public static void message() {
@@ -457,10 +465,8 @@ public class HRApplication {
 			}
 			break;
 		}
-		//TO DO: prints changes to the file
+		// TO DO: prints changes to the file
 		user.getProfile().viewProfile();
 	}
-
-	
 
 }
