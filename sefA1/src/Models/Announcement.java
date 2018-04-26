@@ -1,11 +1,11 @@
 package Models;
 
-public class announcement {
+public class Announcement {
 
 	
 	private String announcement;
 
-	public announcement(String announcement)
+	public Announcement(String announcement)
 	{
 		this.announcement=announcement;
 	}
